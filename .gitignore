@@ -1,0 +1,53 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+
+# Environment
+.env
+.env.local
+.env.production
+venv/
+env/
+.venv/
+
+# Data (persisted locally, not committed)
+data/raw/
+data/chroma_db/
+data/*.db
+data/eval_report.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+test.db
+test_chroma/
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+logs/
+
+# Docker
+*.dockerignore
+
+# Streamlit
+.streamlit/secrets.toml

@@ -1,0 +1,74 @@
+name: CI — Enterprise RAG Chatbot
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create .env for testing
+        run: |
+          echo "OPENAI_API_KEY=sk-test-key-for-ci" >> .env
+          echo "SECRET_KEY=test-secret-key-for-ci-only" >> .env
+          echo "DATABASE_URL=sqlite:///./test.db" >> .env
+          echo "CHROMA_PERSIST_DIR=./test_chroma" >> .env
+          echo "DEBUG=false" >> .env
+
+      - name: Run tests (non-API-calling tests only)
+        run: |
+          pytest app/tests/test_loaders.py \
+                 app/tests/test_chunker.py \
+                 app/tests/test_auth.py \
+                 -v --tb=short
+        env:
+          OPENAI_API_KEY: sk-test-key-for-ci
+          SECRET_KEY: test-secret-key-for-ci-only
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f test.db
+          rm -rf test_chroma
+
+  lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install ruff
+      - name: Run ruff linter
+        run: ruff check app/ scripts/ --select E,W,F --ignore E501,W503
+        continue-on-error: true   # Non-blocking in CI (warnings only)
+
+  build-docker:
+    name: Docker Build Check
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -f deployment/Dockerfile.api -t enterprise-rag-api:${{ github.sha }} .
+      - name: Build UI image
+        run: docker build -f deployment/Dockerfile.ui -t enterprise-rag-ui:${{ github.sha }} .

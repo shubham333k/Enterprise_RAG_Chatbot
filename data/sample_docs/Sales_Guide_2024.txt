@@ -1,0 +1,79 @@
+SALES TEAM GUIDE AND COMPENSATION STRUCTURE
+Acme Enterprise Solutions — Sales Division
+Fiscal Year 2024
+
+SECTION 1: SALES COMMISSION STRUCTURE
+
+1.1 BASE SALARY AND ON-TARGET EARNINGS (OTE)
+All sales representatives receive a base salary plus commission. The OTE (On-Target Earnings) is structured as 50% base salary and 50% variable commission when 100% of quota is achieved.
+
+1.2 COMMISSION RATES BY PRODUCT TIER
+
+Tier 1 — Core Products (CRM, ERP, Analytics Suite):
+- 0% to 79% of quota: 4% commission on closed revenue
+- 80% to 99% of quota: 6% commission on all closed revenue (retroactive from deal 1)
+- 100% to 124% of quota: 8% commission on all closed revenue
+- 125% and above: 12% commission (accelerator kicks in) on all deals above 125% threshold
+
+Tier 2 — Enterprise Contracts (above USD 500,000 ACV):
+- Enterprise deals carry a 2% bonus commission on top of the standard tier rate
+- Enterprise deals require VP of Sales approval before closing
+
+Tier 3 — Strategic Accounts (Fortune 500):
+- Handled exclusively by Strategic Account Executives
+- Custom compensation plan — speak to Sales Operations
+
+1.3 COMMISSION PAYMENT SCHEDULE
+Commissions are calculated monthly based on booked and invoiced revenue. Payment is made in the following month's payroll cycle. Clawback policy: If a deal is cancelled within 90 days of booking, the commission is clawed back.
+
+SECTION 2: SALES PROCESS AND METHODOLOGY
+
+We follow the MEDDIC sales methodology:
+M — Metrics: What measurable value will the customer achieve?
+E — Economic Buyer: Who has the authority to spend money?
+D — Decision Criteria: What criteria does the customer use to evaluate vendors?
+D — Decision Process: What is the step-by-step buying process?
+I — Identify Pain: What is the primary business pain?
+C — Champion: Who inside the customer will sell for you?
+
+2.1 DEAL STAGES AND EXIT CRITERIA
+Stage 1 - Discovery (0%): Initial meeting completed, pain identified
+Stage 2 - Qualification (20%): MEDDIC partially complete, budget confirmed
+Stage 3 - Solution (40%): Demo delivered, technical validation complete
+Stage 4 - Proposal (60%): Proposal submitted, Economic Buyer engaged
+Stage 5 - Negotiation (80%): Legal and commercial terms under discussion
+Stage 6 - Closed Won (100%): Contract signed and PO received
+Stage 7 - Closed Lost (0%): Deal lost, reason documented in CRM
+
+SECTION 3: SALES QUOTAS
+
+Annual quotas are set in Q4 for the following fiscal year. Quota is based on territory potential, historical performance, and company growth targets. Mid-year quota adjustments require VP of Sales approval and are rare.
+
+New hire ramp period:
+- Month 1-3: 25% of full quota (learning and onboarding period)
+- Month 4-6: 50% of full quota
+- Month 7-9: 75% of full quota
+- Month 10+: 100% of full quota
+
+SECTION 4: SALES TOOLS AND CRM
+
+All customer interactions, deals, and activities must be logged in Salesforce within 24 hours. Pipeline reviews are conducted every Monday at 10 AM. Deal reviews for deals above USD 100,000 are conducted with the VP of Sales bi-weekly.
+
+Required CRM hygiene:
+- Close date must be realistic (not year-end default)
+- Next step must be documented with a specific date
+- All contacts must be linked to the account record
+
+SECTION 5: DISCOUNTING POLICY
+
+Standard discount authority by role:
+- Sales Representative: Up to 10% discount
+- Sales Manager: Up to 20% discount
+- VP of Sales: Up to 30% discount
+- CEO approval required: Above 30% discount
+
+Discounts above 15% require completion of a Deal Desk approval form. Turnaround time: 48 hours for standard approval, 24 hours for fast-track.
+
+SECTION 6: SALES ENABLEMENT RESOURCES
+
+Product demos must use the latest approved demo environment. Customer case studies are available in the Sales SharePoint portal. Competitive battle cards are updated quarterly and available in Highspot. All sales materials must be approved by Marketing before use with customers.

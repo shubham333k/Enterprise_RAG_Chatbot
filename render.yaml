@@ -1,0 +1,67 @@
+# render.yaml — Render.com deployment configuration
+# Connect your GitHub repo to Render and it will use this file
+
+services:
+  # ── FastAPI Backend ────────────────────────────────────────────────────────
+  - type: web
+    name: enterprise-rag-api
+    runtime: python
+    region: oregon
+    plan: starter          # $7/month — upgrade to standard for production
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: LLM_PROVIDER
+        value: groq
+      - key: OPENAI_API_KEY
+        sync: false        # Set manually in Render dashboard if using openai
+      - key: OPENAI_MODEL
+        value: gpt-4.1-mini
+      - key: GEMINI_API_KEY
+        sync: false        # Set manually in Render dashboard if using gemini
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash
+      - key: GROQ_API_KEY
+        sync: false        # Set manually in Render dashboard if using groq
+      - key: GROQ_MODEL
+        value: llama-3.1-8b-instant
+      - key: EMBEDDING_MODEL
+        value: all-MiniLM-L6-v2
+      - key: CHROMA_PERSIST_DIR
+        value: /data/chroma_db
+      - key: DATABASE_URL
+        value: sqlite:////data/enterprise_rag.db
+      - key: SECRET_KEY
+        generateValue: true   # Render auto-generates a secure random value
+      - key: DEBUG
+        value: "false"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: UPLOAD_DIR
+        value: /data/raw
+      - key: CHUNK_SIZE
+        value: "700"
+      - key: CHUNK_OVERLAP
+        value: "125"
+      - key: TOP_K_DEFAULT
+        value: "5"
+    disk:
+      name: rag-data
+      mountPath: /data
+      sizeGB: 5             # Persists ChromaDB + uploads across deploys
+
+  # ── Streamlit UI ──────────────────────────────────────────────────────────
+  - type: web
+    name: enterprise-rag-ui
+    runtime: python
+    region: oregon
+    plan: starter
+    buildCommand: pip install streamlit==1.36.0 requests==2.32.3
+    startCommand: streamlit run app/ui/streamlit_app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
+    envVars:
+      - key: API_URL
+        fromService:
+          name: enterprise-rag-api
+          type: web
+          property: host

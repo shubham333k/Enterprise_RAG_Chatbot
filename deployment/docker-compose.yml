@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.api
+    container_name: rag_api
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    volumes:
+      - ../data:/code/data   # persist ChromaDB + uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  ui:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.ui
+    container_name: rag_ui
+    ports:
+      - "8501:8501"
+    env_file:
+      - ../.env
+    environment:
+      - API_URL=http://api:8000   # internal Docker network
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  rag_data:
+    driver: local
+
+networks:
+  default:
+    name: rag_network
