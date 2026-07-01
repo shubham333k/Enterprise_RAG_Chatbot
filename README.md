@@ -1,193 +1,171 @@
-# Enterprise Knowledge Assistant
+# 🏢 Enterprise RAG Chatbot
 
-> **AI-Powered Multi-Document RAG Platform** with Role-Based Access, Hybrid Search & Source Attribution
+> **A production-ready Multi-Document RAG (Retrieval-Augmented Generation) Platform** featuring granular Role-Based Access Control (RBAC), multi-provider LLM integration (OpenAI, Google Gemini, Groq), hybrid vector search, PII masking, and source-attributed answers.
 
-[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green.svg)](https://fastapi.tiangolo.com/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.36-red.svg)](https://streamlit.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
----
-
-## What it does
-
-Answers enterprise knowledge questions in **2–3 seconds** with **exact document citations** — no hallucinations, no guessing. Upload HR policies, engineering wikis, sales proposals, contracts, or support tickets and ask questions like:
-
-> *"What is our maternity leave policy?"*  
-> ↳ **Answer:** "Eligible permanent employees are entitled to 6 months of maternity leave."  
-> ↳ **Source:** HR_Policy_2024.pdf · Page 12 · Section 4.2
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688.svg?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.58-FF4B4B.svg?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-orange.svg?style=for-the-badge&logo=databricks&logoColor=white)](https://www.trychroma.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 ---
 
-## Architecture
+## 🌟 Key Features
+
+* **⚡ Ultra-Low Latency:** Answers complex questions in **1.5 - 3 seconds** using local semantic indexing coupled with cloud-based LLM generation.
+* **🛡️ Security First (RBAC & PII Masking):** Integrated Role-Based Access Control allows documents to be partitioned by department (e.g., HR, Engineering, Sales). Access filters are applied at the database querying stage before the LLM, ensuring strict data boundaries. PII masking prevents sensitive information from leaking.
+* **🤖 Multi-Provider LLM Engine:** Seamlessly toggle between:
+  * **OpenAI** (gpt-4.1-mini)
+  * **Google Gemini** (gemini-1.5-flash / gemini-2.0-flash via new google-genai SDK) - **[FREE Tier]**
+  * **Groq** (llama-3.1-8b-instant) - **[FREE Tier / Ultra-Fast]**
+* **🔍 Clean Source Attribution:** Every response includes direct document citations showing the filename, page number, section, and text excerpt.
+* **💻 Dev-Friendly Footprint:** Optimized to run perfectly on 8GB RAM machines without a GPU (under 4.5GB peak local RAM utilization).
+
+---
+
+## 🛠️ Architecture Overview
 
 ```
-Browser → Streamlit UI → FastAPI Backend → ChromaDB (vector search)
-                                        → SQLite (users, sessions)
-                                        → OpenAI API (GPT-4.1-mini) [cloud LLM]
+             ┌────────────────────────┐
+             │  Streamlit Frontend   │ (Port 8501)
+             └───────────┬────────────┘
+                         │ REST API
+                         ▼
+             ┌────────────────────────┐
+             │    FastAPI Backend     │ (Port 8000)
+             └───────────┬────────────┘
+                         │
+        ┌────────────────┼────────────────┐
+        ▼                ▼                ▼
+┌──────────────┐ ┌──────────────┐ ┌───────────────┐
+│   SQLite     │ │   ChromaDB   │ │  Cloud LLM    │
+│  DB Store    │ │ Vector Store │ │   API Layer   │
+│ (Auth & RBAC)│ │(all-MiniLM-L6)│ (OpenAI/Gemini/ │
+└──────────────┘ └──────────────┘ │     Groq)     │
+                                  └───────────────┘
 ```
-
-**Key design decision:** The LLM runs entirely in the cloud (OpenAI). Only the embedding model (`all-MiniLM-L6-v2`, ~90MB) and ChromaDB run locally. This keeps RAM usage ≈ 3.5–4.5 GB on an 8 GB machine.
 
 ---
 
-## Quick Start
+## 🚀 Quick Start Guide
 
-### 1. Clone & Setup
+### 1. Clone & Initialize Environment
 
 ```bash
-git clone <your-repo-url>
-cd enterprise-rag-chatbot
+git clone https://github.com/shubham333k/Enterprise_RAG_Chatbot.git
+cd Enterprise_RAG_Chatbot
 python -m venv venv
+
 # Windows:
 venv\Scripts\activate
+# Linux/macOS:
+source venv/bin/activate
+
 pip install -r requirements.txt
 ```
 
-### 2. Configure Environment
-
+### 2. Configure Environment Variables
+Copy `.env.example` to `.env` and configure your API keys:
 ```bash
 cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
 ```
 
-### 3. Initialize Database & Seed Users
+Open `.env` and set your preferred provider. For **free usage**, we recommend using **Groq** or **Gemini**:
+```ini
+LLM_PROVIDER=groq
 
+# ── OpenAI ──
+OPENAI_API_KEY=your-openai-key-here
+
+# ── Google Gemini ──
+GEMINI_API_KEY=your-gemini-key-here
+
+# ── Groq ──
+GROQ_API_KEY=your-groq-key-here
+```
+
+### 3. Initialize & Seed Users
+Run the seeding script to create default user accounts with pre-defined security roles:
 ```bash
 python scripts/seed_users.py
 ```
 
-Default users created:
-| Username | Password | Role |
-|---|---|---|
-| `admin` | `admin123` | admin |
-| `hr_user` | `hr123` | hr |
-| `eng_user` | `eng123` | engineering |
-| `sales_user` | `sales123` | sales |
-| `employee` | `emp123` | employee |
+The script initializes the following credentials:
+| Username | Password | Role | Access Scope |
+|---|---|---|---|
+| `admin` | `admin123` | `admin` | All Documents |
+| `hr_user` | `hr123` | `hr` | HR + Public Documents |
+| `eng_user` | `eng123` | `engineering` | Engineering + Public Documents |
+| `sales_user` | `sales123` | `sales` | Sales + Public Documents |
+| `employee` | `emp123` | `employee` | Public Documents Only |
 
 ### 4. Run the Application
 
-**Terminal 1 — Backend:**
+Start the **FastAPI Backend**:
 ```bash
-uvicorn app.api.main:app --reload --port 8000
+# Windows / Bash
+uvicorn app.api.main:app --port 8000
 ```
 
-**Terminal 2 — Frontend:**
+Start the **Streamlit Frontend** (in a separate terminal):
 ```bash
-streamlit run app/ui/streamlit_app.py
+streamlit run app/ui/streamlit_app.py --server.port 8501
 ```
 
-Open **http://localhost:8501** in your browser.
-
-### 5. Upload Sample Documents
-
-The `data/sample_docs/` folder contains demo documents. Upload them from the sidebar in the Streamlit UI.
+Open **`http://localhost:8501`** in your browser to log in and chat!
 
 ---
 
-## API Documentation
+## 📂 Project Structure
 
-With the backend running, visit:
-- **Swagger UI:** http://localhost:8000/docs
-- **ReDoc:** http://localhost:8000/redoc
-
-### Key Endpoints
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/auth/login` | Get JWT token |
-| POST | `/auth/register` | Register new user |
-| POST | `/documents/upload` | Upload a document |
-| POST | `/documents/index` | Chunk, embed, and index a document |
-| GET | `/documents` | List all documents |
-| POST | `/chat/query` | Ask a question |
-| GET | `/chat/history/{session_id}` | Get chat history |
-| GET | `/analytics/overview` | Usage statistics (admin only) |
-| GET | `/health` | Health check |
-
----
-
-## Role-Based Access Control
-
-| Role | Accessible Documents |
-|---|---|
-| `admin` | All documents |
-| `hr` | HR + Public |
-| `engineering` | Engineering + Public |
-| `sales` | Sales + Public |
-| `employee` | Public only |
-
-Access filters are applied **at the vector-search level** — restricted chunks never reach the LLM context.
-
----
-
-## Batch Ingestion
-
-To index an entire folder of documents:
-
-```bash
-python scripts/batch_ingest.py --dir ./data/raw --department hr --access_level hr
+```
+Enterprise_RAG_Chatbot/
+├── app/
+│   ├── api/          # FastAPI server routes, JWT security, database sessions
+│   ├── db/           # SQL database schema and models (SQLite/PostgreSQL)
+│   ├── rag/          # Text loaders, document chunker, local embedder, prompt builder
+│   │   ├── embeddings/     # Local all-MiniLM-L6-v2 vector generation
+│   │   ├── generation/     # Multi-provider chat client (OpenAI, Gemini, Groq)
+│   │   ├── guardrails/     # Access filters, hallucination checks, PII masks
+│   │   └── vectorstores/   # ChromaDB database setup
+│   ├── ui/           # Streamlit Web Interface
+│   └── tests/        # PyTest integration suite (30+ automated tests)
+├── data/
+│   ├── raw/          # Ingested documents (PDFs, docx, txt, xlsx)
+│   └── sample_docs/  # Default test documents
+├── scripts/          # Database seeding, RAG CLI evaluation, batch ingestion
+├── deployment/       # Production Dockerfiles, docker-compose & Nginx configs
+└── render.yaml       # Blueprint file for Render.com automated deployment
 ```
 
 ---
 
-## RAG Evaluation
+## ⚡ Deployment (Render.com)
 
+This repository includes a `render.yaml` Blueprint file for automatic configuration on **Render.com**:
+
+1. Fork/Push this repository to your GitHub account.
+2. Log into the **Render Dashboard**.
+3. Click **New** → **Blueprint**.
+4. Connect this GitHub repository.
+5. In the environmental config, fill in:
+   - `LLM_PROVIDER` (e.g. `groq` or `gemini`)
+   - `GROQ_API_KEY` (or `GEMINI_API_KEY`/`OPENAI_API_KEY`)
+6. Deploy! Render will deploy the API and UI automatically with a persistent storage mount for database files.
+
+---
+
+## 🧪 Testing & Evaluation
+
+### Automated Tests
+Run the pytest suite to verify authentication, database operations, and document ingestion:
+```bash
+pytest
+```
+
+### RAG Performance Evaluation
+Run the RAG evaluation script to generate latency, hallucination check, and relevance metrics:
 ```bash
 python scripts/eval_rag.py
 ```
-
-Measures: retrieval precision@k, citation correctness, no-answer rate, latency.
-
----
-
-## Docker
-
-```bash
-# Build and run both API + UI
-docker-compose -f deployment/docker-compose.yml up --build
-```
-
-- API: http://localhost:8000
-- UI: http://localhost:8501
-
----
-
-## Deployment (Render.com)
-
-1. Push to GitHub
-2. Connect repo to [Render.com](https://render.com)
-3. Set environment variables in Render dashboard (copy from `.env`)
-4. Render auto-deploys on push
-
-See `render.yaml` for configuration.
-
----
-
-## Project Structure
-
-```
-enterprise-rag-chatbot/
-├── app/
-│   ├── api/          # FastAPI routes, schemas, core config
-│   ├── rag/          # Loaders, chunker, embeddings, vector store, LLM generation
-│   ├── db/           # SQLAlchemy models + session
-│   ├── ui/           # Streamlit frontend
-│   └── tests/        # pytest test suite
-├── data/
-│   ├── raw/          # Uploaded documents
-│   ├── chroma_db/    # ChromaDB persistent store
-│   └── sample_docs/  # Demo documents
-├── scripts/          # CLI tools: seed, batch ingest, eval
-├── deployment/       # Docker, Nginx configs
-└── .github/          # CI workflow
-```
-
----
-
-## Resume Bullets
-
-- Built an enterprise-grade Retrieval-Augmented Generation (RAG) platform with multi-format document ingestion, hybrid semantic retrieval, role-based access control, and citation-backed answers using FastAPI, ChromaDB, LangChain, and OpenAI GPT-4.1-mini.
-- Designed a laptop-optimized architecture (8 GB RAM, no GPU) using local embeddings + ChromaDB + SQLite for dev, with a separate production-deployment blueprint using Docker, Nginx, and Render.com.
-- Implemented access-filtered retrieval pipelines, prompt-injection guardrails, PII masking, and an evaluation framework for retrieval precision and answer groundedness.
+Outputs a detailed JSON report scoring retrieval precision and answer validity.
